@@ -12,9 +12,10 @@
 
 ActiveRecord::Schema[7.0].define(version: 2023_07_31_075557) do
   create_table "functions", force: :cascade do |t|
-    t.string "expression", default: "1"
+    t.string "expression", default: "x"
     t.integer "classification", default: 0
-    t.string "antiderivative", default: "x"
+    t.string "antiderivative", default: "0.5*x^2"
+    t.string "derivative", default: "1"
   end
 
 end
