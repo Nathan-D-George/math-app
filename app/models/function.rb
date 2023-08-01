@@ -3,7 +3,7 @@ class Function < ApplicationRecord
   # if conndition then "Yes" else "No" end
 
   enum integration: %i[substitution by_parts sine_powers trig_substituion rational_functions numerical_integration]
-  enum classification: %i[simple trigonometric exponential logarithmic]
+  enum classification: %i[simple trigonometric exponential logarithmic natural_log]
   
   def classify_function
     parts = self.expression.split('+')
@@ -11,6 +11,7 @@ class Function < ApplicationRecord
     self.classification = "trigonometric" if trigonometric?(parts)
     self.classification = "logarithmic"   if logarithmic?(parts)
     self.classification = "exponential"   if exponential?(parts)
+    self.classification = "natural_log"   if natural_log?(parts)
   end
 
   def remove_spaces
@@ -42,7 +43,14 @@ class Function < ApplicationRecord
 
   def logarithmic?(parts)
     parts.each{|part|
-      return true if part.include?('ln')  || part.include?('log')
+      return true if part.include?('log')
+    }
+    false
+  end
+
+  def natural_log?(parts)
+    parts.each{|part|
+      return true if part.include?('ln')
     }
     false
   end
