@@ -3,11 +3,11 @@ class Function < ApplicationRecord
   # if conndition then "Yes" else "No" end
 
   enum integration: %i[substitution by_parts sine_powers trig_substituion rational_functions numerical_integration]
-  enum classification: %i[arithmetic trigonometric exponential logarithmic]
-   
+  enum classification: %i[simple trigonometric exponential logarithmic]
+  
   def classify_function
     parts = self.expression.split('+')
-    self.classification = "arithmetic"    if arithmetic?(parts)
+    self.classification = "simple"        if arithmetic?(parts)
     self.classification = "trigonometric" if trigonometric?(parts)
     self.classification = "logarithmic"   if logarithmic?(parts)
     self.classification = "exponential"   if exponential?(parts)
@@ -33,7 +33,6 @@ class Function < ApplicationRecord
   end
 
   def trigonometric?(parts)
-    # parts = expr.split('+')
     parts.each{|part|
       return true if part.include?('sin') || part.include?('cos') || part.include?('tan')
       return true if part.include?('csc') || part.include?('sec') || part.include?('cot')
@@ -42,7 +41,6 @@ class Function < ApplicationRecord
   end
 
   def logarithmic?(parts)
-    # parts = expr.split('+')
     parts.each{|part|
       return true if part.include?('ln')  || part.include?('log')
     }
@@ -50,7 +48,6 @@ class Function < ApplicationRecord
   end
 
   def exponential?(parts)
-    # parts = expr.split('+')
     parts.each{|part|
       return true if part.include?('exp')
     }

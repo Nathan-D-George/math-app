@@ -1,9 +1,11 @@
 <h1>Create a Function</h1>
 <p>What mathematical function will you enter. Can we classify it?? (~__~)</p>
 <div class='col-md-6'>
+
   <%= form_with model: @function, url: new_function_path, method: :post do |f| %>
     <div style='padding-top:15px; padding-bottom: 15px'> 
       <h4><p><%= f.label :function%></p></h4>
+      <p>Please use the format: &nbsp 2x^3 &nbsp or &nbsp sin(2x) &nbsp or &nbsp arctan(3x) &nbsp or &nbsp 3*exp(x)</p>
       <%= f.text_field :expression, class:'form-control' %>
     </div>
     <%= f.submit 'Create Function', class:'btn btn-outline-success' %>

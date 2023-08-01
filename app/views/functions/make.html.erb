@@ -1,0 +1,27 @@
+<h1>Make a Function</h1>
+<p>What mathematical function will you enter. Can we classify it?? (~__~)</p>
+<div class='col-md-6'>
+
+  <%= form_with model: @function, url: new_function_path, method: :post do |f| %>
+    <div class='row'>
+      <div style='padding-top:15px; padding-bottom: 15px'> 
+        <h4><p><%= f.label :function%></p></h4>
+        <%= f.text_field :expression, class:'form-control' %>
+      </div>
+      <div class='col-3'>
+        <%= f.text_field :term_1%>
+      </div>
+      <div class='col-1'>
+        <%= f.select(:oper, options_for_select(['+','-','*','/'])) %>
+      </div>
+      <div class='col-1'>
+
+        <%= f.text_field :term_1%>
+      </div>
+      <div class='col-1'>
+        <%= f.select(:oper, options_for_select(['+','-','*','/'])) %>
+      </div>
+      <%= f.submit 'Make Function', class:'btn btn-outline-success' %>
+    </div>
+  <% end %>
+</div>
