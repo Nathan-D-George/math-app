@@ -38,7 +38,7 @@ class FunctionsController < ApplicationController
         coef  = get_coefficient(func.expression)
         der = differentiate_simple({coef: o_coef, index: o_index})
       else
-        body  = get_body(func.expression)
+        body  = get_body(func.expression).first
         i_index = get_index(body)
         i_coef  = get_coefficient(body)
         expression = func.expression
@@ -58,10 +58,15 @@ class FunctionsController < ApplicationController
           o_index = get_index(expression)
           o_coef  = get_coefficient(expression)
           der = differentiate_natural_log({o_coef: o_coef, i_coef: i_coef, o_index: o_index, i_index: i_index, body: body})
+        elsif func.classification == "logarithmic"
+          expression.remove!("log","(#{body})")
+          o_index = get_index(expression)
+          o_coef  = get_coefficient(expression)
+          der = differentiate_logarithmic({o_coef: o_coef, i_coef: i_coef, o_index: o_index, i_index: i_index, body: body})
         end
         
       end
-      debugger 
+      debugger
     }
   end
 
@@ -86,7 +91,12 @@ class FunctionsController < ApplicationController
   def get_body(term)
     delimiters = ['(',')']
     term_parts = term.split(Regexp.union(delimiters))
-    term_parts.last
+    # term_parts#.last
+    ans = []
+    term_parts.each_with_index do |part, index|
+      ans.append(part) if index%2 != 0
+    end
+    ans
   end
 
   def differentiate_simple(hash)
@@ -154,6 +164,14 @@ class FunctionsController < ApplicationController
     end
   end
 
+  def differentiate_logarithmic(hash)
+    ln_ans = differentiate_natural_log(hash)
+    ln_ans_parts = ln_ans[:func].split("/")
+    ln_ans_parts.last.prepend("(")
+    ln_ans_parts.last.concat("*ln(10))")
+    ans = {first: ln_ans[:first], func: "#{ln_ans_parts.first}/#{ln_ans_parts.last}"}
+    debugger
+  end
 
   def differentiate_sum_rule(term)
   end
@@ -167,7 +185,7 @@ class FunctionsController < ApplicationController
   def differentiate_chain_rule
   end
 
-  def differentiate_logarithmic
+  def multiple_functions?(expression)
   end
 
   def string_to_array(string)
