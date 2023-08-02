@@ -14,6 +14,10 @@ class Function < ApplicationRecord
     self.classification = "natural_log"   if natural_log?(parts)
   end
 
+  def set_first_differential(differential)
+    self.derivative = differential
+  end
+  
   def remove_spaces
     expr  = ''
     array = self.expression.split('')
@@ -23,7 +27,18 @@ class Function < ApplicationRecord
     self.expression = expr
   end
 
+  def subtract_to_add_minus
+    arr = self.expression.split("")
+    ans = ''
+    arr.each_with_index do |ar, index|
+      ans.concat('+') if ar == '-'
+      ans.concat(ar)
+    end
+    self.expression = ans
+  end
+
   private
+
   def arithmetic?(parts)
     parts.each{|part|
       return false if part.include?('sin') || part.include?('cos') || part.include?('tan')

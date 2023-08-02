@@ -13,8 +13,11 @@ class FunctionsController < ApplicationController
     function.expression = params[:function][:expression]
     function.classify_function
     function.remove_spaces
+    function.subtract_to_add_minus
     # function.save
-    classify_terms(function)
+    differential = classify_terms(function)
+    function.set_first_differential(differential)
+    # debugger
     ans   = string_to_array(function.expression)
   end
   
@@ -26,9 +29,11 @@ class FunctionsController < ApplicationController
     
   def classify_terms(function)
     terms_hash = {}
-    delimiters = ['+','-']
-    terms_arr  = function.expression.split(Regexp.union(delimiters))
-    terms_arr.each{|term| 
+    final_ans  = []
+    # delimiters = ['+','-']
+    # terms_arr  = function.expression.split(Regexp.union(delimiters))
+    terms_arr = function.expression.split('+')
+    terms_arr.each{ |term| 
       func = Function.new(expression: term)
       func.classify_function
       terms_hash[term] = func.classification
@@ -36,38 +41,46 @@ class FunctionsController < ApplicationController
       if func.classification == "simple"
         index = get_index(func.expression)
         coef  = get_coefficient(func.expression)
-        der = differentiate_simple({coef: o_coef, index: o_index})
+        const = false
+        func.expression.include?('x') ? const = false : const = true
+        der = differentiate_simple({coef: coef, index: index, constant: const})
+        final_ans.append(der[:func])
       else
         body  = get_body(func.expression).first
         i_index = get_index(body)
         i_coef  = get_coefficient(body)
         expression = func.expression
         if func.classification == "trigonometric"
-          expression.remove!('^')
+          typef = get_type(func.expression)
+          expression.remove!("#{typef}(#{body})")
           o_index = get_index(expression)
           o_coef  = get_coefficient(expression)
-          typef = get_type(func.expression)
           der = differentiate_trigonometric({o_coef: o_coef, i_coef: i_coef, o_index: o_index, i_index: i_index, body: body, typef: typef})
+          final_ans.append(der[:func])
         elsif func.classification == "exponential"
           expression.remove!("exp","(#{body})")
           o_index = get_index(expression)
           o_coef  = get_coefficient(expression)
           der = differentiate_exponential({o_coef: o_coef, i_coef: i_coef, o_index: o_index, i_index: i_index, body: body})
+          final_ans.append(der[:func])
         elsif func.classification == "natural_log"
           expression.remove!("ln","(#{body})")
           o_index = get_index(expression)
           o_coef  = get_coefficient(expression)
           der = differentiate_natural_log({o_coef: o_coef, i_coef: i_coef, o_index: o_index, i_index: i_index, body: body})
+          final_ans.append(der[:func])
         elsif func.classification == "logarithmic"
           expression.remove!("log","(#{body})")
           o_index = get_index(expression)
           o_coef  = get_coefficient(expression)
           der = differentiate_logarithmic({o_coef: o_coef, i_coef: i_coef, o_index: o_index, i_index: i_index, body: body})
+          final_ans.append(der[:func])
         end
-        
       end
-      debugger
-    }
+      
+    } 
+    final_ans.delete("0")
+    final_ans.join('+')
   end
 
   def get_index(term)
@@ -79,6 +92,7 @@ class FunctionsController < ApplicationController
   end
 
   def get_coefficient(term)
+    return "1" if term.blank?
     return term unless term.include?('x')
     term_parts = term.split('x')
     coef = "1"
@@ -100,6 +114,7 @@ class FunctionsController < ApplicationController
   end
 
   def differentiate_simple(hash)
+    return {func:'0'} if hash[:constant] 
     ans = ''
     if hash[:index].to_i == 2
       ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, 'x')
@@ -108,7 +123,7 @@ class FunctionsController < ApplicationController
     else
       ans.concat(hash[:coef])
     end
-    ans
+    {func: ans}
   end
 
   def differentiate_trigonometric(hash)
@@ -116,13 +131,17 @@ class FunctionsController < ApplicationController
     if hash[:o_index] == "1"
       index = get_index(hash[:body])
       coef  = get_coefficient(hash[:body])
-      forst = differentiate_simple({coef: coef, index: index})
-      first = forst.split(Regexp.union(['x^','x']))
+      forst = differentiate_simple({coef: coef, index: index, constant: hash[:const]})
+      first = forst[:func].split(Regexp.union(['x^','x']))
       func  = ''
       typef = hash[:typef].to_s
-      typef == "sin" ? func = "cos(#{hash[:body]})" : typef == "cos" ? func = "-sin(#{hash[:body]})": typef == "tan" ? func = "sec^2(#{hash[:body]})" : func.concat('')
-      typef == "csc" ? func = "-csc(#{hash[:body]})*cot(#{hash[:body]})" : typef == "sec" ? func = "sec(#{hash[:body]})*tan(#{hash[:body]})": typef == "cot" ? func = "-csc^2(#{hash[:body]})" : func.concat('')
-      ans   = {first: (first.first.to_i*hash[:o_coef].to_i).to_s.concat(forst.remove!(first.first)), func: func}
+      typef == "sin" ? func = "cos(#{hash[:body]})"                     : typef == "cos" ? func = "sin(#{hash[:body]})"                    : typef == "tan" ? func = "sec^2(#{hash[:body]})" : func.concat('')
+      typef == "csc" ? func = "csc(#{hash[:body]})*cot(#{hash[:body]})" : typef == "sec" ? func = "sec(#{hash[:body]})*tan(#{hash[:body]})": typef == "cot" ? func = "csc^2(#{hash[:body]})" : func.concat('')
+      ans   = {func: func.prepend((first.first.to_i*hash[:o_coef].to_i).to_s)}
+      ans   = {func: func.prepend('-')} if typef == "cos" || typef == "csc" || typef = "cot"
+      var   = (first.first.to_i*hash[:o_coef].to_i).to_s
+      # .concat(forst[:func].remove!(first.first))
+      debugger
     else
       ans = {}
     end
@@ -147,8 +166,8 @@ class FunctionsController < ApplicationController
       index = get_index(hash[:body])
       coef  = get_coefficient(hash[:body])
       forst = differentiate_simple({coef: coef, index: index})
-      first = forst.split(Regexp.union(['x^','x']))
-      ans = {first: (first.first.to_i*hash[:o_coef].to_i).to_s.concat(forst.remove!(first.first)), func: "exp(#{hash[:body]})"}
+      first = forst[:func].split(Regexp.union(['x^','x']))
+      ans = {func: "#{(first.first.to_i*hash[:o_coef].to_i).to_s.concat(forst[:func].remove!(first.first))}exp(#{hash[:body]})"}
     end
   end
 
@@ -156,9 +175,9 @@ class FunctionsController < ApplicationController
     ans = {}
     if hash[:o_index] == "1"
       if hash[:i_index] == "1"
-        ans = {first: '', func:"1/x"}
+        ans = {func:"#{hash[:o_coef]}/x"}
       else
-        ans = {first: '', func:"#{hash[:o_coef].to_i*hash[:i_index].to_i}/x"}
+        ans = {func:"#{hash[:o_coef].to_i*hash[:i_index].to_i}/x"}
       end
       ans
     end
@@ -169,11 +188,7 @@ class FunctionsController < ApplicationController
     ln_ans_parts = ln_ans[:func].split("/")
     ln_ans_parts.last.prepend("(")
     ln_ans_parts.last.concat("*ln(10))")
-    ans = {first: ln_ans[:first], func: "#{ln_ans_parts.first}/#{ln_ans_parts.last}"}
-    debugger
-  end
-
-  def differentiate_sum_rule(term)
+    ans = {func: "#{ln_ans_parts.first}/#{ln_ans_parts.last}"}
   end
 
   def differentiate_product_rule
@@ -203,5 +218,6 @@ class FunctionsController < ApplicationController
     delimiters = ['*','^']
     terms_arr  = term.split(Regexp.union(delimiters))
   end
+
 end
 
