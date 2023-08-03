@@ -17,6 +17,7 @@ class FunctionsController < ApplicationController
     function.subtract_to_add_minus
     
     differential = classify_terms(function)
+    differential = cleanup_string_format(differential)
     function.set_first_differential(differential)
     # debugger
     if function.save
@@ -38,6 +39,17 @@ class FunctionsController < ApplicationController
   
   private
 
+  def cleanup_string_format(string)
+    ans = ''
+    arr = string.split('')
+    arr.each_with_index{ |a, i|
+      if !(a == '+' && i != 0 && arr[i-1] == '(')
+        ans.concat(a) if !(a == '+' && i == 0)
+      end
+    }
+    ans
+  end
+
   def is_integer?(term)
     term.to_s.to_i.to_s == term
   end
@@ -57,8 +69,9 @@ class FunctionsController < ApplicationController
       diff_ans.append(differentiate(func).first)         if  compound[:typef].blank?
     }
     diff_ans.delete("0")
-    diff_ans.each {|inst| inst.prepend('('); inst.concat(')')}
-    diff_ans.join('+')
+    diff_ans.join('')
+    # diff_ans.each {|inst| inst.prepend('('); inst.concat(')')}
+    
   end
 
   def differentiate(func)
@@ -103,7 +116,6 @@ class FunctionsController < ApplicationController
       end
     end
     final_ans
-    
   end
 
   def get_index(term)
@@ -115,7 +127,8 @@ class FunctionsController < ApplicationController
   end
 
   def get_coefficient(term)
-    return "1" if term.blank?
+    return "1"  if term.blank?
+    return "-1" if term == "-"
     return term unless term.include?('x')
     term_parts = term.split('x')
     coef = "1"
@@ -177,6 +190,8 @@ class FunctionsController < ApplicationController
     else
       ans.concat(hash[:coef])
     end
+    ans = "" if ans == "1"
+    ans.prepend('+') if !(ans.first == '-' || ans.blank?)
     {func: ans}
   end
 
@@ -191,8 +206,14 @@ class FunctionsController < ApplicationController
       typef = hash[:typef].to_s
       typef == "sin" ? func = "cos(#{hash[:body]})"                     : typef == "cos" ? func = "sin(#{hash[:body]})"                    : typef == "tan" ? func = "sec^2(#{hash[:body]})" : func.concat('')
       typef == "csc" ? func = "csc(#{hash[:body]})*cot(#{hash[:body]})" : typef == "sec" ? func = "sec(#{hash[:body]})*tan(#{hash[:body]})": typef == "cot" ? func = "csc^2(#{hash[:body]})" : func.concat('')
-      ans   = {func: func.prepend((first.first.to_i*hash[:o_coef].to_i).to_s)}
-      ans   = {func: func.prepend('-')} if typef == "cos" || typef == "csc" || typef == "cot"
+      ans   = {func: func.prepend((first.first.to_i*hash[:o_coef].to_i).to_s)} if is_integer?(hash[:coef])
+      if typef == "cos" || typef == "csc" || typef == "cot"
+        ans   = {func: func} 
+        ans[:func].prepend('-') if ans[:func].first != '-' 
+      else
+        ans   = {func: func.prepend('+')} 
+      end
+      
     else
       ans = {}
     end
@@ -207,6 +228,8 @@ class FunctionsController < ApplicationController
       forst = differentiate_simple({coef: coef, index: index})
       first = forst[:func].split(Regexp.union(['x^','x']))
       ans = {func: "#{(first.first.to_i*hash[:o_coef].to_i).to_s.concat(forst[:func].remove!(first.first))}exp(#{hash[:body]})"}
+      ans[:func].prepend('+') if ans[:func].first != '-'
+      ans
     end
   end
 
@@ -218,8 +241,9 @@ class FunctionsController < ApplicationController
       else
         ans = {func:"#{hash[:o_coef].to_i*hash[:i_index].to_i}/x"}
       end
-      ans
+      ans[:func].prepend('+') if ans[:func].first != '-'
     end
+    ans
   end
 
   def differentiate_logarithmic(hash)
@@ -228,6 +252,8 @@ class FunctionsController < ApplicationController
     ln_ans_parts.last.prepend("(")
     ln_ans_parts.last.concat("*ln(10))")
     ans = {func: "#{ln_ans_parts.first}/#{ln_ans_parts.last}"}
+    ans[:func].prepend('+') if ans[:func].first != '-'
+    ans
   end
 
   def differentiate_product_rule(func)
@@ -241,6 +267,8 @@ class FunctionsController < ApplicationController
     term_parts.each    {|t| t.prepend('('); t.concat(')')}
     differentials.each {|d| d.prepend('('); d.concat(')')}
     ans = "#{term_parts.first}*#{differentials.last} + #{term_parts.last}*#{differentials.first}"
+    ans.prepend('+') if ans.first != '-'
+    ans
   end
 
   def differentiate_quotient_rule(func)
@@ -255,10 +283,14 @@ class FunctionsController < ApplicationController
     term_parts.each   {|t| t.prepend('('); t.concat(')')}
     divisorators.each {|d| d.prepend('('); d.concat(')')}
     ans = "( #{term_parts.last}*#{divisorators.first} - #{term_parts.first}*#{divisorators.last} )/(#{term_parts.last}^2)"
+    ans.prepend('+') if ans.first != '-'
+    ans
   end
 
   def differentiate_chain_rule(func)
     ans = "0"
+    ans.prepend('+') if ans.first != '-'
+    ans
   end
 
   def string_to_array(string)
