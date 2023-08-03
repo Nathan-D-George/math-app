@@ -1,7 +1,8 @@
 class FunctionsController < ApplicationController
   def new
-    @function = Function.new
-    console
+    @function  = Function.new
+    @functions = Function.all
+    # console
   end
 
   def make
@@ -14,11 +15,25 @@ class FunctionsController < ApplicationController
     function.classify_function
     function.remove_spaces
     function.subtract_to_add_minus
-    # function.save
+    
     differential = classify_terms(function)
     function.set_first_differential(differential)
     # debugger
+    if function.save
+      flash[:notice] = 'Successfully Saved Function'
+      redirect_to new_function_path
+    else
+      flash[:alert] = 'Something went wrong'
+    end
     ans   = string_to_array(function.expression)
+
+  end
+
+  def destroy
+    @function = Function.find(params[:id])
+    @function.destroy
+    flash[:notice] = 'Successfully Destroyed Function'
+    redirect_to new_function_path
   end
   
   private
@@ -36,13 +51,14 @@ class FunctionsController < ApplicationController
       func.classify_function
       terms_hash[term] = func.classification
       compound = compound_term?(term)
-      differentiate_product_rule(func) if !compound[:typef].blank? && compound[:typef] == "product-rule"
-      # debugger
-      # diff_ans.append(differentiate(func).first)
-    } 
-    # diff_ans.delete("0")
-    # diff_ans.each {|inst| inst.prepend('('); inst.concat(')')  }
-    # diff_ans.join('+')
+      diff_ans.append(differentiate_product_rule(func))  if !compound[:typef].blank? && compound[:typef] == "product-rule"
+      diff_ans.append(differentiate_quotient_rule(func)) if !compound[:typef].blank? && compound[:typef] == "quotient-rule"
+      diff_ans.append(differentiate_chain_rule(func))    if !compound[:typef].blank? && compound[:typef] == "chain-rule"
+      diff_ans.append(differentiate(func).first)         if  compound[:typef].blank?
+    }
+    diff_ans.delete("0")
+    diff_ans.each {|inst| inst.prepend('('); inst.concat(')')}
+    diff_ans.join('+')
   end
 
   def differentiate(func)
@@ -133,8 +149,8 @@ class FunctionsController < ApplicationController
   end
 
   def compound_term?(term)
-    return {compound: false} if !term.include?('(')
-
+    return {compound: true, typef: 'quotient-rule'} if term.include?('/')
+    return {compound: false} if !term.include?('(')    
     term_parts = term.split('*')
     term_num   = term_parts.length
 
@@ -225,16 +241,25 @@ class FunctionsController < ApplicationController
     term_parts.each    {|t| t.prepend('('); t.concat(')')}
     differentials.each {|d| d.prepend('('); d.concat(')')}
     ans = "#{term_parts.first}*#{differentials.last} + #{term_parts.last}*#{differentials.first}"
-    debugger
   end
 
-  def differentiate_quotient_rule
+  def differentiate_quotient_rule(func)
+    term_parts   = func.expression.split('/')
+    divisorators = []
+    term_parts.each {|part|
+      part = part[1..-2] if part.first == '('
+      sub_func = Function.new(expression: part)
+      sub_func.classify_function
+      divisorators.append(differentiate(sub_func).first)
+    }
+    term_parts.each   {|t| t.prepend('('); t.concat(')')}
+    divisorators.each {|d| d.prepend('('); d.concat(')')}
+    ans = "( #{term_parts.last}*#{divisorators.first} - #{term_parts.first}*#{divisorators.last} )/(#{term_parts.last}^2)"
   end
 
-  def differentiate_chain_rule
+  def differentiate_chain_rule(func)
+    ans = "0"
   end
-
-
 
   def string_to_array(string)
     array = []

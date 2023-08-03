@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get  '/new_function',  to: 'functions#new'
   get  '/make_function', to: 'functions#make' 
   post '/new_function',  to: 'functions#create'
+  delete '/destroy_function', to: 'functions#destroy'
 
   root to: 'pages#home'
   get '/about', to: 'pages#about'
@@ -27,6 +28,12 @@ end
     ln(x) * sin(2x)
     2x * exp(4x)
      x * exp(x)
+
+  quotient-rule
+    ln(x)/2x^3
+    sec(3x^2)/(2x+1)
+
+
 
   chain-rule:
     sin(3x^2)

@@ -1,0 +1,14 @@
+<% if flash[:alert] %>
+  <% flash.each do |name, msg|%>
+    <div class='alert alert-danger flash-disappear' style='width:1320px'>
+      <%= msg%>
+    </div>
+  <% end %>
+<% end %>
+<% if flash[:notice] %>
+  <% flash.each do |name, msg|%>
+    <div class='alert alert-primary flash-disappear' style='width:1320px'>
+      <%= msg%>
+    </div>
+  <% end %>
+<% end %>
