@@ -33,8 +33,6 @@ end
     ln(x)/2x^3
     sec(3x^2)/(2x+1)
 
-
-
   chain-rule:
     sin(3x^2)
     sin^2(3x)

@@ -1,7 +1,7 @@
 class FunctionsController < ApplicationController
   def new
     @function  = Function.new
-    @functions = Function.all
+    @functions = Function.all.order(id: :desc)
     # console
   end
 
@@ -39,12 +39,17 @@ class FunctionsController < ApplicationController
   
   private
 
+  def fix_double_negative(string)
+  end
+
   def cleanup_string_format(string)
     ans = ''
     arr = string.split('')
     arr.each_with_index{ |a, i|
       if !(a == '+' && i != 0 && arr[i-1] == '(')
-        ans.concat(a) if !(a == '+' && i == 0)
+        if !(a == ')' && arr[i-1] == '(')
+          ans.concat(a) if !(a == '+' && i == 0)
+        end
       end
     }
     ans
@@ -56,22 +61,22 @@ class FunctionsController < ApplicationController
     
   def classify_terms(function)
     terms_hash = {}
-    diff_ans  = []
-    terms_arr = function.expression.split('+')
+    diff_ans   = []
+    terms_arr  = function.expression.split('+')
     terms_arr.each{ |term| 
       func = Function.new(expression: term)
       func.classify_function
       terms_hash[term] = func.classification
       compound = compound_term?(term)
-      diff_ans.append(differentiate_product_rule(func))  if !compound[:typef].blank? && compound[:typef] == "product-rule"
-      diff_ans.append(differentiate_quotient_rule(func)) if !compound[:typef].blank? && compound[:typef] == "quotient-rule"
-      diff_ans.append(differentiate_chain_rule(func))    if !compound[:typef].blank? && compound[:typef] == "chain-rule"
-      diff_ans.append(differentiate(func).first)         if  compound[:typef].blank?
+      diff_ans.append(differentiate_product_rule(func.expression))  if !compound[:typef].blank? && compound[:typef] == "product-rule"
+      diff_ans.append(differentiate_quotient_rule(func.expression)) if !compound[:typef].blank? && compound[:typef] == "quotient-rule"
+      diff_ans.append(differentiate_chain_rule(func.expression))    if !compound[:typef].blank? && compound[:typef] == "chain-rule"
+      diff_ans.append(differentiate(func).first) if  compound[:typef].blank?
+      # debugger
     }
     diff_ans.delete("0")
     diff_ans.join('')
-    # diff_ans.each {|inst| inst.prepend('('); inst.concat(')')}
-    
+
   end
 
   def differentiate(func)
@@ -141,7 +146,6 @@ class FunctionsController < ApplicationController
   def get_body(term)
     delimiters = ['(',')']
     term_parts = term.split(Regexp.union(delimiters))
-    # term_parts#.last
     ans = []
     term_parts.each_with_index do |part, index|
       ans.append(part) if index%2 != 0
@@ -181,21 +185,27 @@ class FunctionsController < ApplicationController
   end
 
   def differentiate_simple(hash)
-    return {func:'0'} if hash[:constant] 
+    return {func:'0'} if !hash[:conststant]  && hash[:constant] 
     ans = ''
-    if hash[:index].to_i == 2
-      ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, 'x')
-    elsif hash[:index].to_i != 1
-      ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, 'x^', (hash[:index].to_i - 1).to_s)
-    else
-      ans.concat(hash[:coef])
+    if hash[:index] != 0
+      if hash[:index].to_i == 2
+        ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, 'x')                                if  hash[:typef].blank?
+        ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, "#{hash[:typef]}(#{hash[:body]})")  if !hash[:typef].blank?
+      elsif hash[:index].to_i != 1
+        ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, 'x^', (hash[:index].to_i - 1).to_s)                                  if  hash[:typef].blank?
+        ans.concat((hash[:coef].to_i* hash[:index].to_i).to_s, hash[:typef], '^', (hash[:index].to_i - 1).to_s, "(#{hash[:body]})") if !hash[:typef].blank?
+      else
+        ans.concat(hash[:coef].to_s)
+      end
+      ans = "" if ans == "1"
+      ans.prepend('+') if !(ans.first == '-' || ans.blank?)
     end
-    ans = "" if ans == "1"
-    ans.prepend('+') if !(ans.first == '-' || ans.blank?)
+    # debugger
     {func: ans}
   end
 
   def differentiate_trigonometric(hash)
+    # return {func: ""} if hash[:index] == ""
     ans = {}
     if hash[:o_index] == "1"
       index = get_index(hash[:body])
@@ -257,7 +267,7 @@ class FunctionsController < ApplicationController
   end
 
   def differentiate_product_rule(func)
-    term_parts = func.expression.split('*')
+    term_parts = func.split('*')
     differentials = []
     term_parts.each {|part|
       sub_func = Function.new(expression: part)
@@ -272,7 +282,7 @@ class FunctionsController < ApplicationController
   end
 
   def differentiate_quotient_rule(func)
-    term_parts   = func.expression.split('/')
+    term_parts   = func.split('/')
     divisorators = []
     term_parts.each {|part|
       part = part[1..-2] if part.first == '('
@@ -287,10 +297,30 @@ class FunctionsController < ApplicationController
     ans
   end
 
+  def get_chain_body(term, typef)
+    delimiters = ['(',')']
+    term_parts = term.split(Regexp.union(delimiters))
+    ans  = []
+    pows = []
+    term_parts.each_with_index do |part, index|
+      ans.append(part)                 if index%2 != 0
+      pows.append(part.remove!(typef,'^')) if index%2 == 0
+    end
+    {powers: pows, body:ans} 
+  end
+
   def differentiate_chain_rule(func)
+    typef = get_type(func)
+    body  = get_chain_body(func,typef)
+    coef  = get_coefficient(func)
     ans = "0"
     ans.prepend('+') if ans.first != '-'
-    ans
+
+    outside_der1 = differentiate_simple({coef: coef, index: body[:powers].first.to_i, typef: typef, body: body[:body].first})
+    outside_der2 = differentiate_trigonometric({o_coef: '1', i_coef: get_coefficient(body[:body]), o_index: '1', i_index: get_index(body[:body]), body: body[:body].first, typef: typef})
+    inside_der   = differentiate_simple({coef: get_coefficient(body[:body].first), index: get_index(body[:body].first)})
+    
+    ans = "(#{inside_der[:func][1..-1]})(#{outside_der1[:func][1..-1]})(#{outside_der2[:func][1..-1]})"
   end
 
   def string_to_array(string)
