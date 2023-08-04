@@ -2,7 +2,7 @@ class Function < ApplicationRecord
 
   # if conndition then "Yes" else "No" end
 
-  enum integration: %i[substitution by_parts sine_powers trig_substituion rational_functions numerical_integration]
+  enum integration: %i[substitution by_parts sine_powers trig_integral trig_substituion rational_functions numerical_integration]
   enum classification: %i[simple trigonometric exponential logarithmic natural_log]
   
   def classify_function
