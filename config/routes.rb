@@ -4,6 +4,10 @@ Rails.application.routes.draw do
   post '/new_function',  to: 'functions#create'
   delete '/destroy_function', to: 'functions#destroy'
 
+  get '/new_sequence', to: 'sequences#new'
+  post'/new_sequence', to: 'sequences#create'
+  delete '/destroy_sequence', to: 'sequences#destroy'
+
   root to: 'pages#home'
   get '/about', to: 'pages#about'
   

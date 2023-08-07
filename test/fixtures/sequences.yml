@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  start_terms: 1.5
+  rule: MyString
+
+two:
+  start_terms: 1.5
+  rule: MyString

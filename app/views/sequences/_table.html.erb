@@ -1,0 +1,26 @@
+<table class="table" style='color:white'>
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Starting Terms</th>
+      <th scope="col">T_o</th>
+      <th scope="col">Rule</th>
+      <th scope="col">7th Term</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% counter = 1 %>
+    <% @sequences.each do |f| %>
+      <tr>
+        <th scope="row"><%= counter %> </th>
+        <td> <%= f.start_terms%> </td>
+        <td> <%= f.start_terms.first %> </td>
+        <td> <%= f.rule %> </td>
+        <td> <%= f.nth_term %> </td>
+        <td> <%= link_to 'Delete', destroy_sequence_path(id: f.id), data:{turbo_method: :delete, turbo_confirm: "Delete?"}, class:'btn btn-outline-danger' %></td>
+      </tr>
+      <% counter += 1 %>
+    <% end %>
+  </tbody>
+</table>

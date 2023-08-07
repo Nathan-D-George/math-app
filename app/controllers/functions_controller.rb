@@ -20,13 +20,13 @@ class FunctionsController < ApplicationController
     differential = classify_terms(function)
     differential = cleanup_string_format(differential)
     function.set_first_differential(differential)
-    # debugger
-    if function.save
-      flash[:notice] = 'Successfully Saved Function'
-      redirect_to new_function_path
-    else
-      flash[:alert] = 'Something went wrong'
-    end
+    debugger
+    # if function.save
+    #   flash[:notice] = 'Successfully Saved Function'
+    #   redirect_to new_function_path
+    # else
+    #   flash[:alert] = 'Something went wrong'
+    # end
 
   end
 
@@ -243,7 +243,6 @@ class FunctionsController < ApplicationController
   end
 
   def integration_by_substitution(func)
-
   end
 
   def integration_by_parts

@@ -1,24 +1,19 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This application is a math app.
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
+* Program Software
+  * Ruby version: 3.1.4
+  * Rails version: 7.0.6
+  * Database: MySQL
+  * OS: Linux Mint 21.1
 
 * Configuration
 
-* Database creation
+  1. Clone file from Github
+  
+  2. Run Rails Server
 
-* Database initialization
+  3. Access Program from http://localhost:3000
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+  4. Enjoy

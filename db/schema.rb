@@ -10,12 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_31_075557) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_07_064140) do
   create_table "functions", force: :cascade do |t|
     t.string "expression", default: "x"
     t.integer "classification", default: 0
     t.string "antiderivative", default: "0.5*x^2"
     t.string "derivative", default: "1"
+  end
+
+  create_table "sequences", force: :cascade do |t|
+    t.string "start_terms"
+    t.string "rule"
+    t.integer "nth_term"
   end
 
 end
