@@ -1,0 +1,24 @@
+<table class="table" style='color:white'>
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Function</th>
+      <th scope="col">Cylindrical</th>
+      <th scope="col">Spherical</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% counter = 1 %>
+    <% @functions.each do |f| %>
+      <tr>
+        <th scope="row"><%= counter %> </th>
+        <td> <%= f.rectangular%> </td>
+        <td> <%= f.cylindrical%> </td>
+        <td> <%= f.spherical%>   </td>
+        <td> <%= link_to 'Delete', destroy_conversions_path(id: f.id), data:{turbo_method: :delete, turbo_confirm: "Delete?"}, class:'btn btn-outline-danger' %></td>
+      </tr>
+      <% counter += 1 %>
+    <% end %>
+  </tbody>
+</table>

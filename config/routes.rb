@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get    '/conversions/new',    to: 'conversions#new',     as: 'new_conversions'
+  post   '/conversions/new',    to: 'conversions#create',  as: 'create_conversions'
+  delete '/conversions/destroy',to: 'conversions#destroy', as: 'destroy_conversions'
+
   get  '/new_function',  to: 'functions#new'
   get  '/make_function', to: 'functions#make' 
   post '/new_function',  to: 'functions#create'
@@ -14,3 +18,49 @@ Rails.application.routes.draw do
 
 end
 
+=begin
+  More than Able
+  Firm Foundation
+  Jehovah
+  Yahweh
+  Yahweh will Manifest
+  Yeshua
+  Who is this man?
+  Good (can't be anything else)
+
+
+  simple:
+    x^2 + 3ln(x) - sin(2x)
+    exp(4x^2)
+
+  product-rule:
+    ln(x) * sin(2x)
+    2x * exp(4x)
+     x * exp(x)
+
+  quotient-rule
+    ln(x)/2x^3
+    sec(3x^2)/(2x+1)
+
+  chain-rule:
+    sin(3x^2)
+    sin^2(3x)
+
+=end
+=begin
+  expansion ideas:
+    1 convert between coordinate systems:
+      rectagular
+      cylindrical 
+      spherical
+      polar
+
+    2 Newton-Raphson Method
+
+    3 Upload identities to  API
+
+    4 
+    
+
+
+=end
