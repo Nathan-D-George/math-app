@@ -11,8 +11,8 @@ class SequencesController < ApplicationController
     sequence.classify_sequence
     if sequence.type == "arithmetic"
       sequence.rule     = get_a_sequence_rule(terms)
-      # sequence.nth_term = get_a_7th_term(sequence.start_terms)
-      sequence.nth_term = get_a_quad_7th_term(sequence.rule[6..-1])
+      sequence.nth_term = get_a_7th_term(sequence.start_terms)      if  sequence.rule["^"].blank?
+      sequence.nth_term = get_a_quad_7th_term(sequence.rule[6..-1]) if !sequence.rule["^"].blank?
     else
       sequence.rule     = get_g_sequence_rule(sequence.start_terms)
       sequence.nth_term = get_g_7th_term(sequence.start_terms)
@@ -55,7 +55,7 @@ class SequencesController < ApplicationController
       c = sequence.first.to_i - b.to_i - a.to_i
       ans = ["T_n = #{a}*n^2", "#{b}*n", "#{c}" ]
       ans.each{|a| a.prepend('+') if a.first != '-' && a.first != 'T' }
-      ans.join('')
+      ans.join(' ')
     else
       return "T_n = #{diffs.first.to_i}( n - 1 )"
     end
@@ -73,11 +73,14 @@ class SequencesController < ApplicationController
   end
 
   def get_a_quad_7th_term(sequence)
-    sequence["n"] = "7"
     sequence["^"] = "**"
+    lett = sequence.split('')
+    str = ''
+    lett.each{|l| 
+      l == 'n' ? str.concat('7') : str.concat(l)
+    }
     
-    # sequence.sub("n","7")
-    return instance_eval sequence
+    return instance_eval str
   end
 
   def get_g_rate(terms)
@@ -88,7 +91,7 @@ class SequencesController < ApplicationController
   def get_g_sequence_rule(start_terms)
     rate = get_g_rate(start_terms.split(','))
     t0   = start_terms.split(',').first
-    rule = "T_n = T_o x [#{rate}^(n-1)]"
+    rule = "T_n = T_o x (#{rate}^(n-1))"
     rule
   end
 
