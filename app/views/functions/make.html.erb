@@ -3,25 +3,30 @@
 <div class='col-md-6'>
 
   <%= form_with model: @function, url: new_function_path, method: :post do |f| %>
-    <div class='row'>
-      <div style='padding-top:15px; padding-bottom: 15px'> 
+    <div class='row' style='padding-top:15px; padding-bottom: 15px'>
+      <div class='col-3'> 
         <h4><p><%= f.label :function%></p></h4>
         <%= f.text_field :expression, class:'form-control' %>
       </div>
       <div class='col-3'>
-        <%= f.text_field :term_1%>
+      <h4><p><%= f.label :function%></p></h4>
+        <%= f.text_field :term_1, class:'form-control'%>
       </div>
-      <div class='col-1'>
+      <div class='col-2'>
+      <h4><p><%= f.label :function%></p></h4>
         <%= f.select(:oper, options_for_select(['+','-','*','/'])) %>
       </div>
-      <div class='col-1'>
-
-        <%= f.text_field :term_1%>
+      <div class='col-2'>
+        <h4><p><%= f.label :function%></p></h4>
+        <%= f.text_field :term_1, class:'form-control'%>
       </div>
-      <div class='col-1'>
+      <div class='col-2'>
+      <h4><p><%= f.label :function%></p></h4>
         <%= f.select(:oper, options_for_select(['+','-','*','/'])) %>
       </div>
-      <%= f.submit 'Make Function', class:'btn btn-outline-success' %>
+      <div class='row' style='padding-top:30px'>
+        <%= f.submit 'Make Function', class:'btn btn-outline-success' %>
+      </div>
     </div>
   <% end %>
 </div>

@@ -1,0 +1,22 @@
+<table class="table" style='color:white'>
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Equation</th>
+      <th scope="col">Solution(s)</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% counter = 1 %>
+    <% @equations.each do |f| %>
+      <tr>
+        <th scope="row"><%= counter %> </th>
+        <td> <%= f.expression%> </td>
+        <td> <%= f.solution %> </td>
+        <td> <%= link_to 'Delete', destroy_sequence_path(id: f.id), data:{turbo_method: :delete, turbo_confirm: "Delete?"}, class:'btn btn-outline-danger' %></td>
+      </tr>
+      <% counter += 1 %>
+    <% end %>
+  </tbody>
+</table>

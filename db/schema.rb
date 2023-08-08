@@ -10,11 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_08_064442) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_08_103727) do
   create_table "conversions", force: :cascade do |t|
     t.string "rectangular", default: "z = x+y"
     t.string "cylindrical", default: "z = rcos(θ)+rsin(θ)"
     t.string "spherical", default: "z = ρsin(φ)cos(θ) + ρsin(φ)sin(θ)"
+  end
+
+  create_table "equations", force: :cascade do |t|
+    t.string "expression", default: "x = 1"
+    t.string "solution", default: "x = 1"
   end
 
   create_table "functions", force: :cascade do |t|
