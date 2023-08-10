@@ -63,5 +63,4 @@ class ConversionsController < ApplicationController
     ans
   end
 
-
 end

@@ -52,7 +52,7 @@ end
 
   equations:
     x^2 + x -2 = x -1
-    
+    x^2 + 2x -15 = 0
 
 =end
 =begin

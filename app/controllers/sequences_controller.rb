@@ -79,7 +79,6 @@ class SequencesController < ApplicationController
     lett.each{|l| 
       l == 'n' ? str.concat('7') : str.concat(l)
     }
-    
     return instance_eval str
   end
 

@@ -20,7 +20,6 @@ class FunctionsController < ApplicationController
     differential = classify_terms(function)
     differential = cleanup_string_format(differential)
     function.set_first_differential(differential)
-    # debugger
     if function.save
       flash[:notice] = 'Successfully Saved Function'
       redirect_to new_function_path
@@ -54,7 +53,6 @@ class FunctionsController < ApplicationController
       diff_ans.append(differentiate_chain_rule(func.expression))    if !compound[:typef].blank? && compound[:typef] == "chain-rule"
       diff_ans.append(differentiate(func).first) if  compound[:typef].blank?
       # anti_ans.append(integration_by_substitution(func.expression))
-      # debugger
     }
     diff_ans.delete("0")
     diff_ans.join('')
@@ -117,7 +115,6 @@ class FunctionsController < ApplicationController
       else
         ans.concat(hash[:coef].to_s)
       end
-      # debugger
       # ans = "" if ans == "1"
       ans.prepend('+') if !(ans.first == '-' || ans.blank?)
     end

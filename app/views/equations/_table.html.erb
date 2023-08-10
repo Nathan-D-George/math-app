@@ -14,7 +14,7 @@
         <th scope="row"><%= counter %> </th>
         <td> <%= f.expression%> </td>
         <td> <%= f.solution %> </td>
-        <td> <%= link_to 'Delete', destroy_sequence_path(id: f.id), data:{turbo_method: :delete, turbo_confirm: "Delete?"}, class:'btn btn-outline-danger' %></td>
+        <td> <%= link_to 'Delete', destroy_equation_path(id: f.id), data:{turbo_method: :delete, turbo_confirm: "Delete?"}, class:'btn btn-outline-danger' %></td>
       </tr>
       <% counter += 1 %>
     <% end %>

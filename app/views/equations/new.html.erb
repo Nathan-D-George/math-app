@@ -1,11 +1,17 @@
-<h1>Equations</h1>
-<p> Enter an equation that needs solving</p>
 <div class='row'>
 <div class='col-3'></div>
   <div class='col-md-6'>
+    <h1>Equations</h1>
+    <p> Enter an algebraic equation that needs solving</p>
+    <p> <strong> Rules </strong> </p>
+    <li>
+      <strong> <small> 1 equals sign only </small> </strong> 
+    </li>
+    <li>
+      <strong> <small> only quadratic or linear equations can be solved</small> </strong>
+    </li>
     <%= form_with model: @equation, url: create_equation_path, method: :post do |s| %>
       <div style='padding-top:15px; padding-bottom: 15px'> 
-        <p>Enter the first few terms (at least 3 terms; comma-seperated)</p>
         <%= s.text_field :expression, class:'form-control' %>
       </div>
       <%= s.submit 'Solve Equation', class:'btn btn-outline-secondary' %>
