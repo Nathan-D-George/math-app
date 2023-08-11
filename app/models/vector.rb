@@ -1,0 +1,2 @@
+class Vector < ApplicationRecord
+end

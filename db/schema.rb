@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_08_103727) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_11_074111) do
   create_table "conversions", force: :cascade do |t|
     t.string "rectangular", default: "z = x+y"
     t.string "cylindrical", default: "z = rcos(θ)+rsin(θ)"
@@ -33,6 +33,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_08_103727) do
     t.string "start_terms"
     t.string "rule"
     t.integer "nth_term"
+  end
+
+  create_table "vectors", force: :cascade do |t|
+    t.integer "magnitude"
+    t.integer "i"
+    t.integer "j"
+    t.integer "k"
   end
 
 end

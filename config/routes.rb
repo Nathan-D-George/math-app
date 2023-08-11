@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get    '/vectors/new',     to: 'vectors#new',     as: 'new_vector'
+  post   '/vectors/new',     to: 'vectors#create',  as: 'create_vector'
+  delete '/vectors/destroy', to: 'vectors#destroy', as: 'destroy_vector'
+
   get    '/equations/new',     to: 'equations#new',     as: 'new_equation'
   post   '/equations/new',     to: 'equations#create',  as: 'create_equation'
   delete '/equations/destroy', to: 'equations#destroy', as: 'destroy_equation'
@@ -60,7 +64,6 @@ end
       rectagular
       cylindrical 
       spherical
-      polar
 
     2 Newton-Raphson Method
 

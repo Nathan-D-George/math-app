@@ -1,5 +1,5 @@
 class EquationsController < ApplicationController
-  include  EquationsHelper
+  include EquationsHelper
 
   def new
     @equation  = Equation.new
@@ -37,6 +37,7 @@ class EquationsController < ApplicationController
     lhs  = both.first
     rhs  = both.last
     #==================================================
+
     rhs_parts = rhs.split('+')
     rhs_parts.each {|part|
       next if part == ''
