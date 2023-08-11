@@ -8,7 +8,6 @@ Rails.application.routes.draw do
   delete '/conversions/destroy',to: 'conversions#destroy', as: 'destroy_conversions'
 
   get    '/new_function',     to: 'functions#new'
-  get    '/make_function',    to: 'functions#make' 
   post   '/new_function',     to: 'functions#create'
   delete '/destroy_function', to: 'functions#destroy'
 
@@ -67,12 +66,7 @@ end
 
     3 Upload identities to  API
 
-    4 Equation Solver
-
-    5 Moment/Torque calculator
-      Have a photo where lengths can be edited and the force applied. 
-      Calc output moment, and whatever else you can
-    
+    tick:: 4 Equation Solver
 
 
 =end

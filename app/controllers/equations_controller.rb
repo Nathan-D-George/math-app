@@ -39,12 +39,13 @@ class EquationsController < ApplicationController
     #==================================================
     rhs_parts = rhs.split('+')
     rhs_parts.each {|part|
+      next if part == ''
       lhs.concat('-',part)        if part.first != '-'
       lhs.concat('+',part[1..-1]) if part.first == '-'
     }
     rhs = '0'
     #==================================================
-
+    
     lhs = add_tilde_signs(lhs)
     lhs_parts = lhs.split('~')
     power2 = []
@@ -88,12 +89,12 @@ class EquationsController < ApplicationController
       power1.append(part) if !part['x'].blank?  && part['^'].blank?
       consts.append(part) if  part['x'].blank?
     }
-
     #==================================================
+    
     power2 = simplify_like_terms(power2)
     power1 = simplify_like_terms(power1)
     consts = simplify_like_terms(consts)
-
+    
     lhs_coefs = []
     !power2.blank? ? lhs_coefs.append(power2.to_i) : lhs_coefs.append(0)
     !power1.blank? ? lhs_coefs.append(power1.to_i) : lhs_coefs.append(0)
@@ -131,7 +132,7 @@ class EquationsController < ApplicationController
         elsif e == '^'
           exp2.concat('**')
         elsif e == '+' || e == '-'
-          exp2.concat(e)
+          exp2.concat('+')
         else
           if !exp[i+1].blank? && exp[i+1] == 'x'
             exp2.concat(e,'*')
@@ -167,8 +168,8 @@ class EquationsController < ApplicationController
 
   def complete_square(a,b,c)
     if (b.to_f*b.to_f - 4*a.to_f*c.to_f) >= 0
-      ans1 = -b.to_f/(2*a) + (Math.sqrt(b.to_f*b.to_f - 4*a.to_f*c.to_f).to_f/(2*a)).round(2)
-      ans2 = -b.to_f/(2*a) - (Math.sqrt(b.to_f*b.to_f - 4*a.to_f*c.to_f).to_f/(2*a)).round(2)
+      ans1 = (-b.to_f/(2*a) + Math.sqrt(b.to_f*b.to_f - 4*a.to_f*c.to_f).to_f/(2*a)).round(2)
+      ans2 = (-b.to_f/(2*a) - Math.sqrt(b.to_f*b.to_f - 4*a.to_f*c.to_f).to_f/(2*a)).round(2)
       return [ans1, ans2]
     else
       ans1 = "#{-b.to_f/(2*a)} + i#{(Math.sqrt(4*a.to_f*c.to_f - b.to_f*b.to_f ).to_f/(2*a)).round(2)}"

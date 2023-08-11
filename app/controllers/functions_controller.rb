@@ -6,10 +6,6 @@ class FunctionsController < ApplicationController
     @functions = Function.all.order(id: :desc)
   end
 
-  def make
-    @function = Function.new
-  end
-
   def create
     function = Function.new(expression: params[:function][:expression])
     function.expression = params[:function][:expression]
